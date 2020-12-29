@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import RootNavigator from '../../navigation/RootNavigator';
+
 import {
   StyleSheet,
   View,
@@ -10,7 +12,7 @@ import {
   UIManager,
   KeyboardAvoidingView,
 } from 'react-native';
-import { Input, Button, Icon, Alert } from 'react-native-elements';
+import { Input, Button, Icon, Alert , ButtonGroup } from 'react-native-elements';
 
 const Auth = require('./Auth.js')
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -39,26 +41,36 @@ export default class Login extends Component {
     super(props);
 
     this.state = {
-      email: '',
-      password: '',
-      selectedCategory: 0,
-      isLoading: false,
-      isEmailValid: true,
-      isPasswordValid: true,
-      isConfirmationValid: true,
+      	email: '',
+		password: '',
+      	selectedCategory: 0,
+      	isLoading: false,
+      	isEmailValid: true,
+      	isPasswordValid: true,
+      	isConfirmationValid: true,
+	  	authencation: false,
+		selectedIndex: 1
     };
-
-    this.selectCategory = this.selectCategory.bind(this);
-    this.login = this.login.bind(this);
-    this.signUp = this.signUp.bind(this);
-  }
+		this.updateIndex = this.updateIndex.bind(this);
+		this.selectCategory = this.selectCategory.bind(this);
+		this.login = this.login.bind(this);
+		this.signUp = this.signUp.bind(this);
+  	}
+	
+	updateAuthencation(res){
+		this.setState( { authencation:res})
+	}
+	
+	updateIndex (selectedIndex) {
+  		this.setState({selectedIndex})
+	}
 
   selectCategory(selectedCategory) {
-    LayoutAnimation.easeInEaseOut();
-    this.setState({
-      selectedCategory,
-      isLoading: false,
-    });
+		LayoutAnimation.easeInEaseOut();
+		this.setState({
+			selectedCategory,
+			isLoading: false,
+		});
   }
 
   validateEmail(email) {
@@ -66,47 +78,78 @@ export default class Login extends Component {
 
     return re.test(email);
   }
-
-  login() {
-    const { email, password } = this.state;
+  async login() {
+    let { email, password } = this.state;
     this.setState({ isLoading: true });
     // Simulate an API call
-    if (Auth.handleLogin(email, password)) {
-     
-    }
-    else {
-      
-    }
-    console.log(email)
+    console.log('func return', Auth.handleLogin(email, password))
+	var temp = false;
+	
     setTimeout(() => {
-      LayoutAnimation.easeInEaseOut();
+	  LayoutAnimation.easeInEaseOut();
+	  console.log('check')
       this.setState({
         isLoading: false,
         isEmailValid: this.validateEmail(email) || this.emailInput.shake(),
         isPasswordValid: password.length >= 8 || this.passwordInput.shake(),
       });
-    }, 1500);
-  }
+	}, 1500);
+	
+	setTimeout(async function() {
+		console.log('login begin')
+		var a = this.state.validateEmail || this.state.isPasswordValid
+		if (!a) return; 
+		await Auth.handleLogin(email, password).then(function(res){
+		temp = res
+		console.log('res' , res)
+		})
+		this.setState({
+			authencation: temp
+		})
+	
+	}.bind(this) , 1600)
+		console.log('set begin')
+		
+	}
 
-  signUp() {
-    const { email, password, passwordConfirmation } = this.state;
-    this.setState({ isLoading: true });
-    Auth.handleSignUp(data);
-    // Simulate an API call
-    setTimeout(() => {
-      LayoutAnimation.easeInEaseOut();
-      this.setState({
-        isLoading: false,
-        isEmailValid: this.validateEmail(email) || this.emailInput.shake(),
-        isPasswordValid: password.length >= 8 || this.passwordInput.shake(),
-        isConfirmationValid:
-          password === passwordConfirmation || this.confirmationInput.shake(),
-      });
-    }, 1500);
-  }
+	async signUp() {
+		let { email, password, passwordConfirmation } = this.state;
+		this.setState({ isLoading: true });
+		var temp;
+		console.log('isloading')
+		// Simulate an API call
+		setTimeout(() => {
+		LayoutAnimation.easeInEaseOut();
+		this.setState({
+			isLoading: false,
+			isEmailValid: this.validateEmail(email) || this.emailInput.shake(),
+			isPasswordValid: password.length >= 8 || this.passwordInput.shake(),
+			isConfirmationValid:
+			password === passwordConfirmation || this.confirmationInput.shake(),
+		});
+		}, 1500);
+
+		setTimeout(async function(){
+			var a = this.state.isEmailValid || this.state.isPasswordValid || this.state.isConfirmationValid;
+			if (!a) return;
+			await Auth.handleSignUp(this.state.email , this.state.password , this.state.selectedIndex).then(
+			function(res){
+				console.log('res asign' , res)
+				temp = res;
+			}
+			);
+			if (temp == true) {
+				this.selectCategory(0);
+				console.log('pint selce' , this.state.selectedCategory)
+			}
+			
+			console.log('temp  aa ' , temp)
+			console.log('data sing up' , this.state.email , this.state.password  , this.state.selectedIndex)
+		}.bind(this) , 1600)
+	}
 
   render() {
-    const {
+    let {
       selectedCategory,
       isLoading,
       isEmailValid,
@@ -115,9 +158,20 @@ export default class Login extends Component {
       email,
       password,
       passwordConfirmation,
-    } = this.state;
-    const isLoginPage = selectedCategory === 0;
-    const isSignUpPage = selectedCategory === 1;
+	} = this.state;
+	console.log('select cate' , selectedCategory)
+	const isLoginPage = selectedCategory === 0;
+	
+	const isSignUpPage = selectedCategory === 1;
+	
+	const buttons = ['Student', 'Lecture'];
+  	const { selectedIndex } = this.state;
+
+
+
+    console.log(this.state.authencation)
+    if (this.state.authencation == true) 
+      return(<RootNavigator/>);
 
     return (
       <View style={styles.container}>
@@ -263,10 +317,21 @@ export default class Login extends Component {
                       isConfirmationValid
                         ? null
                         : 'Please enter the same password'
-                    }
+					}
                   />
+				   
                 )}
+				{isSignUpPage && (
+					<ButtonGroup
+      					onPress={this.updateIndex}
+						selectedIndex={selectedIndex}
+						buttons={buttons}
+						
+					/>
+				)
+  				}
                 <Button
+  
                   buttonStyle={styles.loginButton}
                   containerStyle={{ marginTop: 32, flex: 0 }}
                   activeOpacity={0.8}
@@ -278,7 +343,7 @@ export default class Login extends Component {
                 />
               </View>
             </KeyboardAvoidingView>
-            <View style={styles.helpContainer}>
+            {/* <View style={styles.helpContainer}>
               <Button
                 title={'Forgot your account'}
                 titleStyle={{ color: 'white' }}
@@ -286,7 +351,7 @@ export default class Login extends Component {
                 underlayColor="transparent"
                 onPress={() => console.log('Go forgot')}
               />
-            </View>
+            </View> */}
           </View>
         </ImageBackground>
       </View>
