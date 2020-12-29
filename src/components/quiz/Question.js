@@ -7,10 +7,10 @@ const Question = (props) => {
     return (
         <View style={{ flexDirection: 'row' }}>
             <Button
-            title={"Câu " + (props.idx + 1)}
+            title={"Câu " + props.idx}
             type="clear"
             />
-            <Text style={{ alignSelf : "center" }} h5> {props.question.Text}</Text>
+            <Text style={{ alignSelf : "center" }} h5> {props.question.Content}</Text>
         </View>
     );
 }

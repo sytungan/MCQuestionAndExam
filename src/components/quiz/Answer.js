@@ -10,6 +10,10 @@ export default class Answer extends Component {
         }
     }
     render() {
+        if (!this.props.answer || this.props.answer === undefined) {
+            return (<Text/>)
+        }
+        else
         return (
             <View>
             {this.props.type == "S" ?  
@@ -19,34 +23,38 @@ export default class Answer extends Component {
                     checkedIcon='dot-circle-o'
                     uncheckedIcon='circle-o'
                     checkedColor='green'
-                    checked = {this.state.choose == qAnswer.Id}
+                    checked = {this.state.choose == qAnswer.AnswerID}
                     onPress={()=>{
-                        this.props.setChoose(qAnswer.Id, this.props.idx);
-                        this.setState({choose: qAnswer.Id})
+                        if (this.props.setChoose) {
+                            this.props.setChoose(qAnswer.AnswerID, this.props.idx);
+                        }
+                        this.setState({choose: qAnswer.AnswerID})
                     }}
                     />
-                    <Text style={{ alignSelf : "center" }}> {qAnswer.Text}</Text>
+                    <Text style={{ alignSelf : "center" }}> {qAnswer.Content}</Text>
                     </View>
                 ))
                 :
                 this.props.answer.map((qAnswer, idx) => 
                     <View  style={{ flexDirection: 'row' }}>
                     <CheckBox
-                    checked = {this.state.chooseList.indexOf(qAnswer.Id) != -1}
+                    checked = {this.state.chooseList.indexOf(qAnswer.AnswerID) != -1}
                     checkedColor='green'
                     onPress={()=>{
-                        this.props.setChoose(this.state.chooseList, this.props.idx);
+                        if (this.props.setChoose) {
+                            this.props.setChoose(this.state.chooseList, this.props.idx);
+                        }
                         let newItem = this.state.chooseList;
-                        if (newItem.indexOf(qAnswer.Id) != -1) {
-                            newItem.splice(newItem.indexOf(qAnswer.Id), 1);
+                        if (newItem.indexOf(qAnswer.AnswerID) != -1) {
+                            newItem.splice(newItem.indexOf(qAnswer.AnswerID), 1);
                         }
                         else {
-                            newItem.push(qAnswer.Id)
+                            newItem.push(qAnswer.AnswerID)
                         }
                         this.setState({chooseList: newItem}); 
                     }}
                     />
-                    <Text style={{ alignSelf : "center" }}> {qAnswer.Text}</Text>
+                    <Text style={{ alignSelf : "center" }}> {qAnswer.Content}</Text>
                     </View>
                 )
             }

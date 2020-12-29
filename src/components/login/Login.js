@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import RootNavigator from '../../navigation/RootNavigator';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 import {
   StyleSheet,
@@ -171,8 +172,7 @@ export default class Login extends Component {
 
     console.log(this.state.authencation)
     if (this.state.authencation == true) 
-      return(<RootNavigator/>);
-
+      this.props.navigation.navigate('Home')
     return (
       <View style={styles.container}>
         <ImageBackground source={BG_IMAGE} style={styles.bgImage}>

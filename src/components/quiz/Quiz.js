@@ -10,36 +10,36 @@ export default class Quiz extends Component {
     state = {
         quiz: [
             {
-                Id: 25106,
-                Text: "Có mấy loại Service?",
-                Type: "S",
-                AnswerId: 104121,
-                ChooseId: "",
+                QuestionID: 25106,
+                Content: "Có mấy loại Service?",
+                QuestionType: "S",
+                ResultID: 104121,
+                ChooseID: "",
                 Answers: [
-                    { Id: 104118, Text: "3" },
-                    { Id: 104119, Text: "4" },
-                    { Id: 104120, Text: "1" },
-                    { Id: 104121, Text: "2" }
+                    { AnswerID: 104118, Content: "3" },
+                    { AnswerID: 104119, Content: "4" },
+                    { AnswerID: 104120, Content: "1" },
+                    { AnswerID: 104121, Content: "2" }
                 ]
             },
             {
-                Id: 25107,
-                Text: "Trong IntentService, phương thức onHandlerIntent sẽ được tự động gọi trong phương thức nào?",
-                Type: "M",
-                AnswerId: [104124,104122],
-                ChooseId: "",
+                QuestionID: 25107,
+                Content: "Trong IntentService, phương thức onHandlerIntent sẽ được tự động gọi trong phương thức nào?",
+                QuestionType: "M",
+                ResultID: [104124,104122],
+                ChooseID: "",
                 Answers: [{
-                    Id: 104122,
-                    Text: "onServiceConnected()"
+                    AnswerID: 104122,
+                    Content: "onServiceConnected()"
                 }, {
-                    Id: 104123,
-                    Text: "onServiceDisConnected()"
+                    AnswerID: 104123,
+                    Content: "onServiceDisConnected()"
                 }, {
-                    Id: 104124,
-                    Text: "onStartCommand()"
+                    AnswerID: 104124,
+                    Content: "onStartCommand()"
                 }, {
-                    Id: 104125,
-                    Text: "onBind()"
+                    AnswerID: 104125,
+                    Content: "onBind()"
                 }]
             }
         ],
@@ -49,11 +49,19 @@ export default class Quiz extends Component {
     }
 
     arraysEqual = (a, b) => {
-        return a.sort() == b.sort();
+        a.sort();
+        b.sort();
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+        for (var i = 0; i < a.length; ++i) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
     }
     setChoose = (choose, idx) => {
         let newItem = this.state.quiz;
-        newItem[idx].ChooseId = choose;
+        newItem[idx].ChooseID = choose;
         this.setState({quiz: newItem});
     }
 
@@ -76,11 +84,11 @@ export default class Quiz extends Component {
                     <View>
                     <Question
                         question={ele}
-                        idx={idx}
+                        idx={idx+1}
                     />
                     <Answer
                         answer={ele.Answers}
-                        type={ele.Type}
+                        type={ele.QuestionType}
                         setChoose={this.setChoose}
                         idx={idx}
                     />
@@ -95,7 +103,7 @@ export default class Quiz extends Component {
                     onPress={ () => {
                         let numOfCorrect = 0;
                         this.state.quiz.map((ele, idx) => {
-                            if (this.checkAnswer(ele.AnswerId, ele.ChooseId)) {
+                            if (this.checkAnswer(ele.ResultID, ele.ChooseID)) {
                                 numOfCorrect += 1
                             }
                         }
@@ -106,7 +114,7 @@ export default class Quiz extends Component {
                     }
                     }
                 />
-                <Overlay ModalComponent={Modal} isVisible={this.state.overlayVisible} onBackdropPress={toggleOverlay}>
+                <Overlay isVisible={this.state.overlayVisible} onBackdropPress={toggleOverlay}>
                     <View>
                         <Text style={{textAlign: 'center'}} h4>Điểm của bạn là: </Text>
                         <Text style={{color: 'orange',textAlign: 'center'}} h3>{this.state.score} </Text>
