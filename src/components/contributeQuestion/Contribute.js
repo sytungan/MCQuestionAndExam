@@ -25,10 +25,10 @@ const BG_IMAGE = require('../../../assets/images/bg_screen2.png');
 
 // Enable LayoutAnimation on Android
 UIManager.setLayoutAnimationEnabledExperimental &&
-  UIManager.setLayoutAnimationEnabledExperimental(true);
+UIManager.setLayoutAnimationEnabledExperimental(true);
 
 
-export default class Login extends Component {
+export default class Contribute extends Component {
   constructor(props) {
     super(props);
 
@@ -103,28 +103,13 @@ export default class Login extends Component {
 	}
 
   render() {
-    let {
-      selectedCategory,
+  let {
       isLoading,
-     
-      isConfirmationValid,
       content,
-	  description,
-	  descriptionFile,
-      passwordConfirmation,
+	    description,
+	    descriptionFile,
 	} = this.state;
-	
-	const isLoginPage = selectedCategory === 0;
-	
-	const isSignUpPage = selectedCategory === 1;
-	
-	const buttons = ['Student', 'Lecture'];
-  	const { selectedIndex } = this.state;
 
-
-
-	console.log(this.state.numOfAnswer)
-	console.log('content' , this.state.content)
     if (this.state.authencation == true) 
       return(<RootNavigator/>);
 
@@ -133,16 +118,10 @@ export default class Login extends Component {
         <ImageBackground source={BG_IMAGE} style={styles.bgImage}>
           <View>
             <KeyboardAvoidingView
-              contentContainerStyle={styles.loginContainer}
               behavior="position"
             >
               <View style={styles.titleContainer}>
-                <View style={{ flexDirection: 'row' }}>
-                  <Text style={styles.titleText}>BEAUX</Text>
-                </View>
-                <View style={{ marginTop: -10, marginLeft: 10 }}>
-                  <Text style={styles.titleText}>VOYAGES</Text>
-                </View>
+      
               </View>
               <View style={{ flexDirection: 'row' }}>
                 

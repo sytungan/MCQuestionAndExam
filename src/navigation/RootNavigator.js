@@ -3,9 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { ThemeContext } from 'react-native-elements';
 import DrawerNavigator from './DrawerNavigator';
-
-import CheckNee from '../containers/test';
-import Login from '../components/login/Login';
+import Contribute from '../components/contributeQuestion/Contribute';
+import Quiz from '../components/quiz/Quiz';
+import { Header } from '../components/header';
 
 const Drawer = createDrawerNavigator();
 
@@ -27,8 +27,8 @@ function RootNavigator() {
           },
         }}
       >
-        <Drawer.Screen name="Avatars" component={CheckNee} />
-        <Drawer.Screen name="Login" component={Login} />
+        <Drawer.Screen name="Contribute" component={Contribute} />
+        <Drawer.Screen name="Quiz" component={Quiz} />
       </Drawer.Navigator>
     </NavigationContainer>
   );
