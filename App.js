@@ -16,8 +16,8 @@ export default class App extends Component {
         centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
         rightComponent={{ icon: 'home', color: '#fff' }}
         /> */}
+        
         <Quiz/>
-        <Contribute/>
         {/* <RootNavigator /> */}
         </ThemeProvider>
     );

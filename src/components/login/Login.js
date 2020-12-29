@@ -98,18 +98,19 @@ export default class Login extends Component {
 	setTimeout(async function() {
 		console.log('login begin')
 		var a = this.state.validateEmail || this.state.isPasswordValid
-		if (!a) return; 
-		await Auth.handleLogin(email, password).then(function(res){
-		temp = res
-		console.log('res' , res)
-		})
+    if (!a) return;
+    await Auth.handleLogin(email, password).then(function(res){
+        temp = res
+        console.log('res' , res)
+
+  })
+    
 		this.setState({
 			authencation: temp
 		})
 	
-	}.bind(this) , 1600)
+	}.bind(this) , 2000)
 		console.log('set begin')
-		
 	}
 
 	async signUp() {
@@ -145,7 +146,7 @@ export default class Login extends Component {
 			
 			console.log('temp  aa ' , temp)
 			console.log('data sing up' , this.state.email , this.state.password  , this.state.selectedIndex)
-		}.bind(this) , 1600)
+		}.bind(this) , 2000)
 	}
 
   render() {
