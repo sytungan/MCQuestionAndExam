@@ -86,7 +86,7 @@ export default class Login extends Component {
  
 
 	async contribute() {
-		let { content, description, descriptionFile } = this.state;
+		let { content, description, descriptionFile , anwser} = this.state;
 		this.setState({ isLoading: true });
 		var temp;
 		console.log('isloading' , content , description , descriptionFile)
@@ -98,6 +98,28 @@ export default class Login extends Component {
 			isLoading: false,		
 		});
 		}, 1500);
+
+		setTimeout(async () => {
+		LayoutAnimation.easeInEaseOut();
+		if (content == '') return
+		if (anwser.length() <= 1 ) return
+		
+		await axios({
+			method : 'post',
+			url :'',
+			data:{
+				content: content,
+				description: description,
+				descriptionFile: descriptionFile,
+				anwser : anwser
+			},
+			timeout : 200
+		}).catch(function (error) {
+			console.log(error);
+			return;
+  		});
+
+		}, 1600);
 
 		
 	}
