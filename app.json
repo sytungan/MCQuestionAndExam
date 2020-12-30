@@ -8,6 +8,5 @@
     "assetBundlePatterns": [
       "**/*"
     ]
-  },
-   "proxy": "http://localhost:19006"
+  }
 }

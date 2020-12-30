@@ -1,5 +1,4 @@
-function a() {
-  console.log('is this the global object? ' + (global === this));
-}
-
-a();
+var d = new Date();
+    var date = d.toLocaleDateString();
+  
+  console.log(date)

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import RootNavigator from '../../navigation/RootNavigator';
 const axios = require('axios')
+import DropDownPicker from 'react-native-dropdown-picker';
 
 
 import {
@@ -16,6 +17,7 @@ import {
 } from 'react-native';
 
 import { Input, Button, Icon, Alert , ButtonGroup, CheckBox } from 'react-native-elements';
+import { set, sub } from 'react-native-reanimated';
 
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -33,21 +35,27 @@ export default class Contribute extends Component {
     super(props);
 
     this.state = {
-      	content: '',
-		description: '',
-		descriptionFile:'',
-      	isLoading: false,
-      	isContent: true,
-      	isAnswer: true,
+      content: '',
+		  description: '',
+		  descriptionFile:'',
+      isLoading: false,
+      isContent: true,
+      isAnswer: true,
 	  	authencation: false,
-		selectedIndex: 1,
-		numOfAnswer:2,
-		anwser:[{content:'' , key:false} , {content:'' , key:false}]
+		  selectedIndex: 1,
+		  numOfAnswer:2,
+		  anwser:[{content:'' , key:false} , {content:'' , key:false}],
+		  subjectOfSem :[],
+		  isGetSubject : false,
+		  listSubject:[],
+		  subject: 0,
+		  QuestionID: 0
+		  
     };
 		this.updateIndex = this.updateIndex.bind(this);
-		
+		this.getMaxID = this.getMaxID.bind(this)
 		this.contribute = this.contribute.bind(this)
-	
+		this.getSubject = this.getSubject.bind(this)
 		this.addAnswer = this.addAnswer.bind(this);
 		this.removeAnswer = this.removeAnswer.bind(this);
   	}
@@ -83,25 +91,148 @@ export default class Contribute extends Component {
   		this.setState({selectedIndex})
 	}
 
- 
-
-	async contribute() {
-		let { content, description, descriptionFile } = this.state;
-		this.setState({ isLoading: true });
+	async getSubject(){
 		var temp;
-		console.log('isloading' , content , description , descriptionFile)
-		// Simulate an API call
-		setTimeout(() => {
-		LayoutAnimation.easeInEaseOut();
-		if (content == '') this.contentInput.shake()
+		await axios({
+			method : 'post',
+			url : 'http://192.168.1.122:3000/getSubjectOfSemester',
+			data:{
+				semester_id: 2
+			},
+			timeout: 1000
+		}).then(function(res){
+			temp = res.data[0]
+			console.log('semeter cua tao' , temp)
+		}).catch(function(err){
+			console.log(err)
+			return;
+		})
+	
+
+		var x = temp.map((item) =>{
+					var a = {label: item.SubjectName, value: item.SubjectID}
+					// console.log(a)
+					return a
+		})
 		this.setState({
-			isLoading: false,		
-		});
-		}, 1500);
-
-		
+			subjectOfSem : temp,
+			isGetSubject : true,
+			listSubject : x
+		})
 	}
+	async getMaxID(){
+		var maxID = 0;
+		var temp2;
+		await axios({
+			method : 'get',
+			url : 'http://192.168.1.122:3000/getAllQuestion',
+			timeout: 1000
+		}).then(function(res){
+			temp2 = res.data
+			console.log('ques cua tao' , temp2)
+		}).catch(function(err){
+			console.log(err)
+			return;
+		})
+		
+		temp2.map(function(item){
+			if (maxID < item.QuestionID){
+				maxID = item.QuestionID;
+			}
+		})
 
+		this.setState({
+			QuestionID : maxID
+		})
+	}
+	async contribute() {
+		this.getMaxID();
+		let { content, description, descriptionFile  , anwser , subject , QuestionID} = this.state;
+		var i = 0;
+		var qType = 'S';
+		anwser.map( function(item) {
+			if (item.key == true) i++;
+		})
+		var outcome;
+		await axios({
+			method: 'get',
+			url: 'http://localhost:3000/getAllLearningOutcome',
+			timeout: 500
+		}).then(function(res){
+			outcome = res.data
+			console.log('outcomess ' ,res.data)
+		}).catch(function(res){
+			console.log(res)
+		})
+		// console.log( 'tang tang tang',outcome)
+		outcome = outcome.filter(function(item){
+	
+			return item.SubjectID == subject
+		})
+		console.log( 'tang tang tang' ,outcome)
+		if (i > 1) qType = 'M';
+		this.setState({ isLoading: true });
+		var temp , succes;
+		var isPost = true;
+		console.log('isloading' , content , description , descriptionFile , anwser , subject )
+		// Simulate an API call
+		await setTimeout(() => {
+		LayoutAnimation.easeInEaseOut();
+		if (content == '') {
+			this.contentInput.shake()
+			isPost = false
+		}
+		this.setState({
+			isLoading: false,		 
+		});
+		
+		}, 1500);
+		if (isPost == false) return
+		await axios({
+			method: 'post',
+			url: 'http://localhost:3000/insertnewQuestion_Answer',
+			data:{
+				question: {
+					content : content,
+					question_type : qType,
+					outcome_id : outcome[0].OutcomeID,
+					subject_id : subject,
+					lecturer_id: 1
+				}
+			},
+			timeout: 1000
+		}).then(function(res){
+			console.log(res)
+		}).catch(function(res){
+			console.log(res)
+		})
+		console.log('is posting')
+		var index = 0;
+		var a = setInterval(async () => {
+				await axios({
+					method: 'post',
+					url: 'http://localhost:3000/insertnewAnswerOfQuestion',
+					data:{
+						question_id : QuestionID + 1,
+						content : anwser[index].content,
+						result :  anwser[index].key ? 1 : 0
+					},
+					timeout:3000
+				}).then(function(res){
+					console.log(res.data)
+				}).catch(function(res){
+					console.log(res)
+					return
+				})
+				console.log('is posting')
+				if (index == anwser.length - 1) this.clearTime(a)
+				else index++;
+			}, 5000)
+
+	} 
+	clearTime(a){
+		clearTimeout(a);
+	}
   render() {
   let {
       isLoading,
@@ -109,10 +240,13 @@ export default class Contribute extends Component {
 	    description,
 	    descriptionFile,
 	} = this.state;
-
+	if (this.state.isGetSubject == false ) {
+		this.getSubject();
+	}
     if (this.state.authencation == true) 
       return(<RootNavigator/>);
-
+				
+	console.log( 'list sub' , this.state.listSubject)
     return (
       <View style={styles.container}>
         <ImageBackground source={BG_IMAGE} style={styles.bgImage}>
@@ -123,11 +257,30 @@ export default class Contribute extends Component {
               <View style={styles.titleContainer}>
       
               </View>
-              <View style={{ flexDirection: 'row' }}>
-                
+              
+					<DropDownPicker
+				items={
+				
+				
+					this.state.isGetSubject ? this.state.listSubject : [
+					{label: 'Chọn môn học', value: 0, icon: () => <Icon name="flag" size={18} color="#900" />}
+				]
+					
+				}
+				defaultValue={this.state.subject}
+				containerStyle={{height: 40, width: 300 }}
+				style={{backgroundColor: '#fafafa'}}
+				itemStyle={{
+					justifyContent: 'flex-start'
+				}}
+				dropDownStyle={{backgroundColor: '#fafafa'}}
+				onChangeItem={item => this.setState({
+					subject: item.value
+				})}
+				/>
                
-              </View>
-             
+            
+				
               <View style={styles.formContainer}>
                 <Input
                 //   leftIcon={
@@ -179,15 +332,7 @@ export default class Contribute extends Component {
                 />
                
                   <Input
-                    // icon={
-                    //   <Icon
-                    //     name="lock"
-                    //     type="simple-line-icon"
-                    //     color="rgba(0, 0, 0, 0.38)"
-                    //     size={25}
-                    //     style={{ backgroundColor: 'transparent' }}
-                    //   />
-                    // }
+                    
                     value={descriptionFile}
                     keyboardAppearance="light"
                     keyboardType="default"
@@ -243,7 +388,7 @@ export default class Contribute extends Component {
 								this.setState({
 									anwser : temp
 								})
-								console.log(temp)
+								// console.log(temp)
 							}
 							}
 						/>

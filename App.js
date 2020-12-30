@@ -23,6 +23,7 @@ export default class App extends Component {
             <Stack.Screen name="Home" component={Home} />
         </Stack.Navigator>
       </NavigationContainer>
+    // <Contribute/>
     );
     }
 }
